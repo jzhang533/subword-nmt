@@ -5,7 +5,11 @@ from collections import Counter
 
 c = Counter()
 
+line_counter = 0
 for line in sys.stdin:
+    line_counter += 1
+    if line_counter % 10000 == 0:
+        print("%d lines processed" % (line_counter), file=sys.stderr)
     for word in line.split():
         c[word] += 1
 

@@ -12,6 +12,7 @@ Proceedings of the 54th Annual Meeting of the Association for Computational Ling
 """
 
 from __future__ import unicode_literals
+from __future__ import print_function
 
 import sys
 import codecs
@@ -180,8 +181,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     vocab = get_vocabulary(args.input)
+#    print("\n".join(["%s : %d" % (x, y) for (x, y) in vocab.items()]), file=sys.stderr)
+#    print("=====================", file=sys.stderr)
+
     vocab = dict([(tuple(x)+('</w>',) ,y) for (x,y) in vocab.items()])
     sorted_vocab = sorted(vocab.items(), key=lambda x: x[1], reverse=True)
+
+#    print("\n".join(["(%s, %s):%d" % (x[0][0], x[0][1], x[1]) for x in sorted_vocab]), file=sys.stderr)
 
     stats, indices = get_pair_statistics(sorted_vocab)
     big_stats = copy.deepcopy(stats)

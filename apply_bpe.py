@@ -11,7 +11,7 @@ Rico Sennrich, Barry Haddow and Alexandra Birch (2015). Neural Machine Translati
 Proceedings of the 54th Annual Meeting of the Association for Computational Linguistics (ACL 2016). Berlin, Germany.
 """
 
-from __future__ import unicode_literals, division
+from __future__ import unicode_literals, division, print_function
 
 import sys
 import codecs
@@ -48,10 +48,13 @@ class BPE(object):
         output = []
         for word in sentence.split():
             new_word = encode(word, self.bpe_codes)
+#            print("word:%s, new word:%s" % (word, "|".join(new_word)), file=sys.stderr)
 
             for item in new_word[:-1]:
                 output.append(item + self.separator)
             output.append(new_word[-1])
+
+#        print(''.join([x.replace("</w>", " ") for x in output]), file=sys.stderr)
 
         return ' '.join(output)
 
@@ -88,6 +91,14 @@ def get_pairs(word):
     for char in word[1:]:
         pairs.add((prev_char, char))
         prev_char = char
+
+#    idx=0
+#    for pair in pairs:
+#        print("%s %d: %s, %s" % ("".join(word), idx, pair[0], pair[1]), file=sys.stderr)
+#        idx += 1
+    
+#    print("======================", file=sys.stderr)
+
     return pairs
 
 def encode(orig, bpe_codes, cache={}):
@@ -129,6 +140,9 @@ def encode(orig, bpe_codes, cache={}):
         else:
             pairs = get_pairs(word)
 
+    cache[orig] = word
+    return word
+
     # don't print end-of-word symbols
     if word[-1] == '</w>':
         word = word[:-1]
@@ -145,6 +159,13 @@ if __name__ == '__main__':
 
     bpe = BPE(args.codes, args.separator)
 
+    line_counter = 0
     for line in args.input:
+        line_counter += 1
+        if line_counter % 10000 == 0:
+            print("%d lines processed" % (line_counter), file=sys.stderr)
+
+#        print(line.strip(), file=sys.stderr)
         args.output.write(bpe.segment(line).strip())
         args.output.write('\n')
+
